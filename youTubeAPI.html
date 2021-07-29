@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script src="https://kit.fontawesome.com/133eda6a97.js" crossorigin="anonymous"></script>
+<style>
+    input{
+    width: 600px;
+    height: 35px;
+    margin-left: 5em;
+    margin-top: 2em;
+    }
+    button{
+    width: 80px;
+    height: 40px;
+    }
+</style>
+<body>
+    <div style="display: flex;"><img style="width: 150px; margin-left:50px" src="logoYouTube.png"/>
+        <div ><input type="text" id="query" >
+    <button onclick="findVideo()"><i class="fas fa-search fa-2x"></i></button></div>
+    </div>
+
+    <div id="videos" style="display:flex; flex-wrap: wrap; gap: 12px"></div>
+</body>
+</html>
+<script>
+    // putTrending();
+    var videos_div = document.getElementById("videos")
+
+    async function putTrending(){
+        
+        // videos_div.innerHTML = null;
+        let res = await fetch(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&regionCode=IN&key=AIzaSyC5TBsv4cXP3k5YahMPzuzFaUz1E2in1ko&maxResults=20`)
+
+        let data = await res.json();
+        
+        let {items} = data;
+
+        items = items.filter((el)=>{
+            return el.id != undefined;
+        })
+        items.forEach(({id})=>{
+            console.log(id)
+            let div = document.createElement("div")
+            div.style.marginTop = "20px"
+
+            div.innerHTML = `<iframe width="520" height="315" src="https://www.youtube.com/embed/${id}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+
+            videos_div.appendChild(div)
+        })
+
+    }
+
+
+    async function findVideo(){
+        // console.log(videos_div)
+        videos_div.innerHTML = null;
+        let q = document.getElementById("query").value
+        let res = await fetch(`https://youtube.googleapis.com/youtube/v3/search?q=${q}&key=AIzaSyC5TBsv4cXP3k5YahMPzuzFaUz1E2in1ko&maxResults=20`)
+        
+        let data = await res.json();
+        displayData(data);
+       
+    }
+
+    function displayData(data){
+         
+        let { items } = data
+
+        items = items.filter((el) => {
+            return el.id.videoId != undefined;
+        })
+
+        // console.log(items)
+
+        items.forEach(({ id: { videoId } }) => {
+            console.log(videoId)
+            let div = document.createElement("div")
+            div.style.marginTop = "20px"
+
+            div.innerHTML = `<iframe width="520" height="315" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+
+            videos_div.appendChild(div)
+        })
+    }
+</script>
